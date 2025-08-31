@@ -1,0 +1,4 @@
+
+public enum PowerUp {
+    SUPER, FIRE, ICE, INVINCIBLE, SPEED_BOOST, SHIELD, FLYING, DOUBLE_JUMP
+}
