@@ -5,7 +5,7 @@ import javax.swing.*;
 public class MarioGameGUI extends JFrame {
 
     private Mario mario;
-    private JTextArea logArea;
+    private GamePanel gamePanel;
 
     public MarioGameGUI() {
         mario = new Mario();
@@ -13,125 +13,107 @@ public class MarioGameGUI extends JFrame {
     }
 
     private void initializeGUI() {
-        setTitle("Super Mario - Design Patterns Demo");
-        setSize(800, 600);
+        setTitle("Super Mario - Design Patterns Game");
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Status Panel
-        JPanel statusPanel = new JPanel(new GridLayout(6, 2));
-        statusPanel.setBorder(BorderFactory.createTitledBorder("Mario Status"));
-        statusPanel.setPreferredSize(new Dimension(300, 200));
+        // Game Panel - Main game area
+        gamePanel = new GamePanel(mario);
+        add(gamePanel, BorderLayout.CENTER);
 
-        statusPanel.add(new JLabel("State:"));
+        // Info Panel - Right side information
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setPreferredSize(new Dimension(250, 600));
+        infoPanel.setBorder(BorderFactory.createTitledBorder("Game Info"));
+
+        // Controls info
+        JTextArea controlsInfo = new JTextArea(
+                "CONTROLS:\n"
+                + "Movement: WASD or Arrow Keys\n"
+                + "Jump: W/↑/Space\n"
+                + "Attack: X\n"
+                + "Take Damage: Z\n\n"
+                + "POWER-UPS (Number Keys):\n"
+                + "1: Speed Boost\n"
+                + "2: Shield\n"
+                + "3: Flying\n"
+                + "4: Double Jump\n"
+                + "5: Super Mario\n"
+                + "6: Fire Mario\n"
+                + "7: Ice Mario\n"
+                + "8: Invincible"
+        );
+        controlsInfo.setEditable(false);
+        controlsInfo.setOpaque(false);
+        controlsInfo.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        infoPanel.add(controlsInfo);
+
+        // State information
+        JPanel statePanel = new JPanel(new GridLayout(8, 2, 5, 5));
+        statePanel.setBorder(BorderFactory.createTitledBorder("Current Status"));
+        statePanel.setMaximumSize(new Dimension(230, 200));
+
+        statePanel.add(new JLabel("State:"));
         JLabel stateLabel = new JLabel();
-        statusPanel.add(stateLabel);
+        statePanel.add(stateLabel);
 
-        statusPanel.add(new JLabel("Score:"));
+        statePanel.add(new JLabel("Score:"));
         JLabel scoreLabel = new JLabel();
-        statusPanel.add(scoreLabel);
+        statePanel.add(scoreLabel);
 
-        statusPanel.add(new JLabel("Lives:"));
+        statePanel.add(new JLabel("Lives:"));
         JLabel livesLabel = new JLabel();
-        statusPanel.add(livesLabel);
+        statePanel.add(livesLabel);
 
-        statusPanel.add(new JLabel("Speed:"));
-        JLabel speedLabel = new JLabel();
-        statusPanel.add(speedLabel);
-
-        statusPanel.add(new JLabel("Strength:"));
-        JLabel strengthLabel = new JLabel();
-        statusPanel.add(strengthLabel);
-
-        statusPanel.add(new JLabel("Health:"));
+        statePanel.add(new JLabel("Health:"));
         JLabel healthLabel = new JLabel();
-        statusPanel.add(healthLabel);
+        statePanel.add(healthLabel);
 
-        add(statusPanel, BorderLayout.WEST);
+        statePanel.add(new JLabel("Speed:"));
+        JLabel speedLabel = new JLabel();
+        statePanel.add(speedLabel);
 
-        // Control Panel
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-        controlPanel.setBorder(BorderFactory.createTitledBorder("Actions"));
+        statePanel.add(new JLabel("Strength:"));
+        JLabel strengthLabel = new JLabel();
+        statePanel.add(strengthLabel);
 
-        JButton moveButton = new JButton("Move");
-        moveButton.addActionListener(e -> {
-            mario.move();
-            log("Mario moved");
-            updateStatus();
-        });
-        controlPanel.add(moveButton);
+        statePanel.add(new JLabel("Decorators:"));
+        JLabel decoratorLabel = new JLabel();
+        statePanel.add(decoratorLabel);
 
-        JButton jumpButton = new JButton("Jump");
-        jumpButton.addActionListener(e -> {
-            mario.jump();
-            log("Mario jumped");
-            updateStatus();
-        });
-        controlPanel.add(jumpButton);
+        infoPanel.add(statePanel);
 
-        JButton attackButton = new JButton("Attack");
-        attackButton.addActionListener(e -> {
-            mario.attack();
-            log("Mario attacked");
-            updateStatus();
-        });
-        controlPanel.add(attackButton);
+        // Pattern explanation
+        JTextArea patternInfo = new JTextArea(
+                "\nPATTERNS USED:\n"
+                + "• State: Mario's behavior changes\n"
+                + "• Decorator: Power-ups stack\n\n"
+                + "Watch Mario change color and\n"
+                + "abilities as you collect power-ups!"
+        );
+        patternInfo.setEditable(false);
+        patternInfo.setOpaque(false);
+        patternInfo.setFont(new Font("Arial", Font.ITALIC, 10));
+        infoPanel.add(patternInfo);
 
-        JButton takeDamageButton = new JButton("Take Damage");
-        takeDamageButton.addActionListener(e -> {
-            mario.takeDamage();
-            log("Mario took damage");
-            updateStatus();
-        });
-        controlPanel.add(takeDamageButton);
+        add(infoPanel, BorderLayout.EAST);
 
-        // Power-up selection
-        JPanel powerUpPanel = new JPanel(new FlowLayout());
-        powerUpPanel.add(new JLabel("Power-up:"));
-        JComboBox<PowerUp> powerUpComboBox = new JComboBox<>(PowerUp.values());
-        powerUpPanel.add(powerUpComboBox);
-
-        JButton collectPowerUpButton = new JButton("Collect Power-up");
-        collectPowerUpButton.addActionListener(e -> {
-            PowerUp selected = (PowerUp) powerUpComboBox.getSelectedItem();
-            mario.collectPowerUp(selected);
-            log("Collected " + selected);
-            updateStatus();
-        });
-        powerUpPanel.add(collectPowerUpButton);
-        controlPanel.add(powerUpPanel);
-
-        add(controlPanel, BorderLayout.CENTER);
-
-        // Log Panel
-        logArea = new JTextArea(10, 50);
-        logArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(logArea);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Game Log"));
-        add(scrollPane, BorderLayout.SOUTH);
-
-        // Timer to update status labels
+        // Status update timer
         Timer statusTimer = new Timer(100, e -> {
             stateLabel.setText(mario.getState().getClass().getSimpleName());
             scoreLabel.setText(String.valueOf(mario.getScore()));
             livesLabel.setText(String.valueOf(mario.getLives()));
-            speedLabel.setText(String.format("%.2f", mario.getTotalSpeed()));
-            strengthLabel.setText(String.valueOf(mario.getTotalStrength()));
             healthLabel.setText(String.valueOf(mario.getTotalHealth()));
+            speedLabel.setText(String.format("%.1f", mario.getTotalSpeed()));
+            strengthLabel.setText(String.valueOf(mario.getTotalStrength()));
+            decoratorLabel.setText(String.valueOf(mario.getDecorators().size()));
         });
         statusTimer.start();
 
         setVisible(true);
-    }
-
-    private void updateStatus() {
-        // Status is updated by the timer
-    }
-
-    private void log(String message) {
-        logArea.append(message + "\n");
-        logArea.setCaretPosition(logArea.getDocument().getLength());
+        gamePanel.requestFocusInWindow();
     }
 
     public static void main(String[] args) {

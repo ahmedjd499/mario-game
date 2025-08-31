@@ -101,6 +101,10 @@ public class Mario {
         this.health = health;
     }
 
+    public List<PowerUpDecorator> getDecorators() {
+        return decorators;
+    }
+
     public void displayStatus() {
         System.out.println("\n+=================== MARIO STATUS ===================+");
         System.out.printf("| State: %-12s Score: %-5d Lives: %-2d         |\n",
